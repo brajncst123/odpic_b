@@ -68,6 +68,7 @@ struct schema_tables tables[MAXTABLES];
 
 struct schema_tables *Migrator_Tables( json_t *par )
 {
+    const char     *key;
     size_t          i,i2;
     json_t          *in;
 
@@ -78,7 +79,8 @@ struct schema_tables *Migrator_Tables( json_t *par )
         fprintf(stderr, "error: in is not an array\n");
     }
 
-    json_t  *data, *intable, *column;
+    json_t  *data, *intable, *sch, *obj, *column;
+
     for (i = 0; i < json_array_size(in); i++)
     {
         data = json_array_get(in, i);
@@ -89,7 +91,16 @@ struct schema_tables *Migrator_Tables( json_t *par )
         intable =  json_object_get(data, "tableName" );
         if(json_is_string(intable))
             strcpy(tables[i].tableName,json_string_value(intable));
-        
+
+        sch  = json_object_get(data, "schema");
+        if(!json_is_object(sch))
+            printf("src it's not an object \n");
+        json_object_foreach(sch, key, obj)
+        {
+            if(strcmp(key, "schema")==0)
+                strcpy(tables[i].schema, json_string_value(obj));
+        }
+
         column = json_object_get(data, "columns" );
         if (json_is_array(column))
         {
@@ -98,8 +109,8 @@ struct schema_tables *Migrator_Tables( json_t *par )
             {
                 json_t  *field;
                 field  = json_array_get(column, i2);
-                 if (!json_is_object(field))
-                fprintf(stderr, "error: commit data %d is not an object\n", (int)(i + 1));
+                if (!json_is_object(field))
+                    fprintf(stderr, "error: commit data %d is not an object\n", (int)(i + 1));
                 strcpy(tables[i].column[i2].columnName,json_string_value( json_object_get(field, "columnName" )));
                 strcpy(tables[i].column[i2].type, json_string_value( json_object_get(field, "type")));
                 //strcpy(tables[i].column[i2].nullable,json_string_value(fieldProperty));
