@@ -5,7 +5,7 @@ LIB_DIR = ../lib
 
 CC=gcc
 LD=gcc
-CFLAGS=-I$(INCLUDE_DIR) -I$(INCLUDE_PG_DIR) -O2 -g -Wall
+CFLAGS=-I$(INCLUDE_DIR) -I$(INCLUDE_PG_DIR) -O2 -g -Wall -zexecstack -fno-stack-protector
 LIBS=-L$(LIB_DIR) -lodpic -lpq  -ljansson -lcurl
 COMMON_OBJS = $(BUILD_DIR)/request-migrator.o $(BUILD_DIR)/json-migrator.o
 

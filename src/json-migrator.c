@@ -108,11 +108,13 @@ struct schema_tables *Migrator_Tables( json_t *par )
             for (i2 = 0; i2 < json_array_size(column); i2++)
             {
                 json_t  *field;
+                int position;
                 field  = json_array_get(column, i2);
                 if (!json_is_object(field))
                     fprintf(stderr, "error: commit data %d is not an object\n", (int)(i + 1));
-                strcpy(tables[i].column[i2].columnName,json_string_value( json_object_get(field, "columnName" )));
-                strcpy(tables[i].column[i2].type, json_string_value( json_object_get(field, "type")));
+                position = json_integer_value( json_object_get( field, "position"));
+                strcpy(tables[i].column[position].columnName,json_string_value( json_object_get(field, "columnName" )));
+                strcpy(tables[i].column[position].type, json_string_value( json_object_get(field, "type")));
                 //strcpy(tables[i].column[i2].nullable,json_string_value(fieldProperty));
             }
         }
