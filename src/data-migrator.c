@@ -146,7 +146,6 @@ main(int argc, char *argv[])
     dpiStmt_release(stmt);
     stmt = refCursorValue->value.asStmt;
 
-    int NumberOfColumns=0;
     while (1)
     {
         if (dpiStmt_fetch(stmt, &found, &bufferRowIndex) < 0)
@@ -185,7 +184,8 @@ main(int argc, char *argv[])
                     digit = precision + scale;
                     f = calloc(digit, sizeof(int));
                     if(scale != 0)
-                        sprintf(f, "%f", Value->value.asDouble);
+                        sprintf(f, "%f", dpiData_getDouble(Value));
+                        //sprintf(f, "%f", Value->value.asDouble);
                     else
                         sprintf(f, "%ld", Value->value.asInt64);
                     break;
@@ -212,7 +212,7 @@ main(int argc, char *argv[])
             }
             
             memmove(record+strlen(record), f,strlen(f)+1);
-            if(col!=NumberOfColumns)
+            if(col!=st_schema_tables[n].numberColumns)
                 memmove(record+strlen(record), delimiter, strlen(delimiter)+1);
         }
         printf("%s\n", record);
