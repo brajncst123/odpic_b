@@ -2,8 +2,8 @@
 #include <string.h>
 #include <jansson.h>
 
-#define MAXTABLES   1000
-#define MAXCOLUMNS  1000
+#define MAXTABLES   100
+#define MAXCOLUMNS  100
 
     struct schema_header
     {
@@ -30,6 +30,7 @@
         char    tableName[128];
         char    schema[128];
         int     numberColumns;
+        char    query[500];
         struct
         {
            char columnName[128];
