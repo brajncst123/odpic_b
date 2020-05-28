@@ -98,6 +98,7 @@ main(int argc, char *argv[])
 
     for(int n=0; n<(sizeof(st_schema_tables)-1); n++)
     {
+        printf("QUERY: %s", st_schema_tables[n].query);
         for(int m=1; m<=st_schema_tables[n].numberColumns; m++)
         {
             if(m==st_schema_tables[n].numberColumns)
@@ -113,6 +114,7 @@ main(int argc, char *argv[])
         memmove(selectSql+strlen(selectSql), dot, strlen(dot)+1);
         memmove(selectSql+strlen(selectSql), st_schema_tables[n].tableName, strlen(st_schema_tables[n].tableName)+1);
         memmove(selectSql+strlen(selectSql), endSelect , strlen(endSelect)+1);
+
         //break;
     //}
 
@@ -124,11 +126,9 @@ main(int argc, char *argv[])
 
 */
 
-   // char delimiter[]="\t";
-   // char selectSql[] = "begin open :cursor for select REGION_ID,COUNTRY_NAME,COUNTRY_ID from hr.countries; end;";
+    //char delimiter[]="\t";
+    //char selectSql[] = "begin open :cursor for select \"REGION_ID\",\"COUNTRY_NAME\",\"COUNTRY_ID\" from \"HR\".\"COUNTRIES\"; end;";
     
-
-  //  memcpy(selectSql, st_schema_tables[0].query, strlen(st_schema_tables[0].query)+1);
 
     printf(" Pre-Execute My Sql: %s \n",  selectSql);
     if (dpiConn_prepareStmt(conn, 0, selectSql, strlen(selectSql), NULL, 0,
@@ -157,17 +157,16 @@ main(int argc, char *argv[])
         if (dpiStmt_getNumQueryColumns(stmt, &numQueryColumns) < 0)
             return printError();
 
-        //char *record = (char *)malloc(sizeof(char)*100);
         char *record = (char *) calloc(100, sizeof( char * ));
-        char *f; // = (char *) calloc(100, sizeof( char *));
-        for(int col=1; col<=numQueryColumns; col++)
+        char *f;
+        for(int col=1; col<=st_schema_tables[n].numberColumns; col++)
         {
             if(dpiStmt_getQueryInfo( stmt, col, &info)<0)
                 return printError();
 
             if (dpiStmt_getQueryValue(stmt, col, &nativeTypeNum, &Value) < 0)
                 return printError();
-            //char *f;
+
             int precision, digit;
             uint8_t scale;
             switch(info.typeInfo.oracleTypeNum)
@@ -224,6 +223,7 @@ main(int argc, char *argv[])
     memcpy(selectSql, "BEGIN OPEN :cursor FOR SELECT ", 31);
     }
     dpiConn_release(conn);
+    dpiContext_destroy(gContext);
     
    
 

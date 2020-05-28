@@ -197,16 +197,16 @@ struct schema_tables *Migrator_Tables( json_t *par )
         //    strcpy(tables[i].query,json_string_value(query));
 
         //zStrrep(char *str, char x, char y)
-        //char x='"', y=' ';
-        //char *qtemp;
+        char x[]="\"";
+        char y[]="\\\"";
         strcpy(
             tables[i].query,
             replace(
                     json_string_value(query),
-                    "begin ",
-                    "begin open :"
+                    x,
+                    y
                     )
-            );
+        );
 
 
         column = json_object_get(data, "columns" );
