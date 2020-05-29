@@ -1,97 +1,5 @@
 #include "json-migrator.h"
 
-char *zStrrep(char *str, char x, char y)
-{
-    char *tmp=str;
-    while(*tmp)
-        if(*tmp == x)
-            *tmp++ = y; /* assign first, then incement */
-        else
-            *tmp++;
-
-    *tmp='\0';
-    return str;
-}
-
-char *replace(const char*instring, const char *old_part, const char *new_part)
-{
-
-#ifndef EXPECTED_REPLACEMENTS
-    #define EXPECTED_REPLACEMENTS 100
-#endif
-
-    if(!instring || !old_part || !new_part)
-    {
-        return (char*)NULL;
-    }
-
-    size_t instring_len=strlen(instring);
-    size_t new_len=strlen(new_part);
-    size_t old_len=strlen(old_part);
-    if(instring_len<old_len || old_len==0)
-    {
-        return (char*)NULL;
-    }
-
-    const char *in=instring;
-    const char *found=NULL;
-    size_t count=0;
-    size_t out=0;
-    size_t ax=0;
-    char *outstring=NULL;
-
-    if(new_len> old_len )
-    {
-        size_t Diff=EXPECTED_REPLACEMENTS*(new_len-old_len);
-        size_t outstring_len=instring_len + Diff;
-        outstring =(char*) malloc(outstring_len); 
-        if(!outstring){
-            return (char*)NULL;
-        }
-        while((found = strstr(in, old_part))!=NULL)
-        {
-            if(count==EXPECTED_REPLACEMENTS)
-            {
-                outstring_len+=Diff;
-                if((outstring=realloc(outstring,outstring_len))==NULL)
-                {
-                     return (char*)NULL;
-                }
-                count=0;
-            }
-            ax=found-in;
-            strncpy(outstring+out,in,ax);
-            out+=ax;
-            strncpy(outstring+out,new_part,new_len);
-            out+=new_len;
-            in=found+old_len;
-            count++;
-        }
-    }
-    else
-    {
-        outstring =(char*) malloc(instring_len);
-        if(!outstring){
-            return (char*)NULL;
-        }
-        while((found = strstr(in, old_part))!=NULL)
-        {
-            ax=found-in;
-            strncpy(outstring+out,in,ax);
-            out+=ax;
-            strncpy(outstring+out,new_part,new_len);
-            out+=new_len;
-            in=found+old_len;
-        }
-    }
-    ax=(instring+instring_len)-in;
-    strncpy(outstring+out,in,ax);
-    out+=ax;
-    outstring[out]='\0';
-
-    return outstring;
-}
-
 struct schema_header Migrator_Header( json_t *par )
 {
 
@@ -193,21 +101,8 @@ struct schema_tables *Migrator_Tables( json_t *par )
                 strcpy(tables[i].schema, json_string_value(obj));
         }
         query = json_object_get(data, "query" );
-        //if(json_is_string(query))
-        //    strcpy(tables[i].query,json_string_value(query));
-
-        //zStrrep(char *str, char x, char y)
-        char x[]="\"";
-        char y[]="\\\"";
-        strcpy(
-            tables[i].query,
-            replace(
-                    json_string_value(query),
-                    x,
-                    y
-                    )
-        );
-
+        if(json_is_string(query))
+            strcpy(tables[i].query,json_string_value(query));
 
         column = json_object_get(data, "columns" );
         if (json_is_array(column))
